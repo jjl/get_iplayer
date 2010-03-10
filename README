@@ -1,0 +1,9 @@
+get_iplayer -- tool for accessing tv and radio from BBC iPlayer.
+
+The BBC currently only provides two choices for accessing iPlayer content from a regular machine, either through it's windows desktop client or through adobe flash. There are apps for the iPhone and other devices and some set top boxes as well.
+
+What the BBC do not cater for are people who use alternative operating systems or who do not wish to use the BBC's selected technologies (which, frankly, should be anyone not running windows since flash's performance is atrocious).
+
+The BBC have a well documented platform neutrality policy which they seem to be reluctant to keep themselves to and after repeated digs at open source, I thought we'd show them what open source can do.
+
+So get hacking and hold the BBC accountable, because not all licence payers use windows!
