@@ -1,0 +1,6 @@
+[submodule "deps/mouse"]
+	path = deps/mouse
+	url = git://git.shadowcat.co.uk/gitmo/Mouse.git
+[submodule "deps/mousex-getopt"]
+	path = deps/mousex-getopt
+	url = git://github.com/gfx/Perl-MouseX-Getopt.git
