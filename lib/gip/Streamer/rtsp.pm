@@ -1,4 +1,4 @@
-package Streamer::rtsp;
+package gip::Streamer::rtsp;
 
 # Inherit from Streamer class
 use base 'Streamer';

@@ -1,4 +1,4 @@
-package Programme::bbclive;
+package gip::Programme::bbclive;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -18,7 +18,7 @@ use Time::Local;
 use URI;
 
 # Inherit from Programme class
-use base 'Programme::bbciplayer';
+use base 'gip::Programme::bbciplayer';
 
 # Class vars
 sub file_prefix_format { '<name> <episode> <dldate> <dltime>' }
@@ -55,13 +55,13 @@ sub clean_pid {
 
 
 
-# Usage: Programme::liveradio->get_links( \%prog, 'liveradio' );
+# Usage: gip::Programme::liveradio->get_links( \%prog, 'liveradio' );
 # Uses: %{ channels() }, \%prog
 sub get_links {
 	shift; # ignore obj ref
 	my $prog = shift;
 	my $prog_type = shift;
-	# Hack to get correct 'channels' method because this methods is being shared with Programme::radio
+	# Hack to get correct 'channels' method because this methods is being shared with gip::Programme::radio
 	my %channels = %{ main::progclass($prog_type)->channels_filtered( main::progclass($prog_type)->channels() ) };
 
 	for ( sort keys %channels ) {
@@ -96,7 +96,7 @@ sub get_links {
 
 
 sub download {
-	# Delegate to Programme::tv (same function is used)
-	return Programme::tv::download(@_);
+	# Delegate to gip::Programme::tv (same function is used)
+	return gip::Programme::tv::download(@_);
 }
 

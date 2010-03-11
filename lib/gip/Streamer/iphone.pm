@@ -23,7 +23,7 @@ sub channels_schedule {
 
 
 ################### Streamer::iphone class #################
-package Streamer::iphone;
+package gip::Streamer::iphone;
 
 # Inherit from Streamer class
 use base 'Streamer';

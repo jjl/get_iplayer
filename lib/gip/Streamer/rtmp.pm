@@ -1,4 +1,4 @@
-package Streamer::rtmp;
+package gip::Streamer::rtmp;
 
 # Inherit from Streamer class
 use base 'Streamer';

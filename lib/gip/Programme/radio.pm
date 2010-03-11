@@ -1,4 +1,4 @@
-package Programme::radio;
+package gip::Programme::radio;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -18,7 +18,7 @@ use Time::Local;
 use URI;
 
 # Inherit from Programme class
-use base 'Programme::bbciplayer';
+use base 'gip::Programme::bbciplayer';
 
 # Class vars
 sub index_min { return 10001 }
@@ -79,6 +79,18 @@ sub channels {
 		'bbc_radio_bristol'			=> 'BBC Bristol',
 		'bbc_radio_somerset_sound'		=> 'BBC Somerset',
 		'bbc_radio_devon'			=> 'BBC Devon',
+		'bbc_radio_cornwall'			=> 'BBC Cornwall',
+		'bbc_radio_guernsey'			=> 'BBC Guernsey',
+		'bbc_radio_jersey'			=> 'BBC Jersey',
+		'popular/radio'				=> 'Popular',
+		'highlights/radio'			=> 'Highlights',
+	};
+}
+
+
+# channel ids be found on http://www.bbc.co.uk/bbcone/programmes/schedules/today
+sub channels_schedule {
+	return {
 		'1xtra/programmes/schedules'		=> 'BBC 1Xtra',
 		'radio1/programmes/schedules/england'	=> 'BBC Radio 1 England',
 		'radio1/programmes/schedules/northernireland'=> 'BBC Radio 1 Northern Ireland',
@@ -143,7 +155,6 @@ sub channels {
 		'jersey/programmes/schedules'		=> 'BBC Jersey',
 	};
 }
-
 
 # Class cmdline Options
 sub opt_format {
@@ -255,14 +266,14 @@ sub clean_pid {
 
 sub get_links {
 	shift;
-	# Delegate to Programme::tv (same function is used)
-	return Programme::tv->get_links(@_);
+	# Delegate to gip::Programme::tv (same function is used)
+	return gip::Programme::tv->get_links(@_);
 }
 
 
 
 sub download {
 	# Delegate to Programme::tv (same function is used)
-	return Programme::tv::download(@_);
+	return gip::Programme::tv::download(@_);
 }
 

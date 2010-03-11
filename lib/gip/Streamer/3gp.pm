@@ -1,4 +1,4 @@
-package Streamer::3gp;
+package gip::Streamer::3gp;
 
 # Inherit from Streamer class
 use base 'Streamer';

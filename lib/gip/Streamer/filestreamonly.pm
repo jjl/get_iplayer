@@ -1,4 +1,4 @@
-package Streamer::filestreamonly;
+package gip::Streamer::filestreamonly;
 
 # Inherit from Streamer class
 use base 'Streamer';

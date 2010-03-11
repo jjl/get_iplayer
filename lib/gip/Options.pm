@@ -1,4 +1,4 @@
-package Options;
+package gip::Options;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -210,7 +210,7 @@ sub usage {
 
 
 # Add all the options into supplied hash from specified class
-# Usage: Options->get_class_options( 'Programme:tv' );
+# Usage: Options->get_class_options( 'gip::Programme:tv' );
 sub get_class_options {
 	shift;
 	my $classname = shift;

@@ -53,7 +53,7 @@ use 5.005; # 'our' support
 
 our $VERSION = 2.72;
 use lib 'lib'; # FIXME: Can't deploy with this in
-use gip;
+#use gip;
 use Env qw[@PATH];
 use Fcntl;
 use File::Copy;
@@ -73,6 +73,28 @@ use strict;
 #use warnings;
 use Time::Local;
 use URI;
+
+use gip::History;
+use gip::Options;
+use gip::Programme;
+use gip::Programme::bbciplayer;
+use gip::Programme::live;
+use gip::Programme::liveradio;
+use gip::Programme::livetv;
+use gip::Programme::radio;
+use gip::Programme::tv;
+use gip::PVR;
+use gip::Streamer;
+use gip::Streamer::3gp;
+use gip::Streamer::filestreamonly;
+use gip::Streamer::http;
+use gip::Streamer::iphone;
+use gip::Streamer::mms;
+use gip::Streamer::rtmp;
+use gip::Streamer::rtsp;
+
+
+
 my %SIGORIG;
 # Save default SIG actions
 $SIGORIG{$_} = $SIG{$_} for keys %SIG;
@@ -84,10 +106,10 @@ my %plugin_files;
 # Hash of all prog types => Programme class
 # Add an entry here if another Programme class is added
 my %prog_types = (
-	tv		=> 'Programme::tv',
-	radio		=> 'Programme::radio',
-	liveradio	=> 'Programme::liveradio',
-	livetv		=> 'Programme::livetv',
+	tv		=> 'gip::Programme::tv',
+	radio		=> 'gip::Programme::radio',
+	liveradio	=> 'gip::Programme::liveradio',
+	livetv		=> 'gip::Programme::livetv',
 );
 
 
@@ -250,27 +272,27 @@ my $opt_format = {
 
 
 # Pre-processed options instance
-my $opt_pre = Options->new();
+my $opt_pre = gip::Options->new();
 # Final options instance
-my $opt = Options->new();
+my $opt = gip::Options->new();
 # Command line options instance
-my $opt_cmdline = Options->new();
+my $opt_cmdline = gip::Options->new();
 # Options file instance
-my $opt_file = Options->new();
+my $opt_file = gip::Options->new();
 # Bind opt_format to Options class
-Options->add_opt_format_object( $opt_format );
+gip::Options->add_opt_format_object( $opt_format );
 
-# Set Programme/Pvr/Streamer class global var refs to the Options instance
-History->add_opt_object( $opt );
-Programme->add_opt_object( $opt );
-Pvr->add_opt_object( $opt );
-Pvr->add_opt_file_object( $opt_file );
-Pvr->add_opt_cmdline_object( $opt_cmdline );
-Streamer->add_opt_object( $opt );
+# Set Programme/PVR/Streamer class global var refs to the Options instance
+gip::History->add_opt_object( $opt );
+gip::Programme->add_opt_object( $opt );
+gip::PVR->add_opt_object( $opt );
+gip::PVR->add_opt_file_object( $opt_file );
+gip::PVR->add_opt_cmdline_object( $opt_cmdline );
+gip::Streamer->add_opt_object( $opt );
 # Kludge: Create dummy Streamer, History and Programme instances (without a single instance, none of the bound options work)
-History->new();
-Programme->new();
-Streamer->new();
+gip::History->new();
+gip::Programme->new();
+gip::Streamer->new();
 
 # Print to STDERR/STDOUT if not quiet unless verbose or debug
 sub logger(@) {
@@ -302,7 +324,7 @@ $opt->{stdout} = 1 if $opt_pre->{stdout} || $opt_pre->{stream};
 
 # show version and exit
 if ( $opt_pre->{showver} ) {
-	print STDERR Options->copyright_notice;
+	print STDERR gip::Options->copyright_notice;
 	exit 0;
 }
 
@@ -352,7 +374,7 @@ for my $plugin_dir ( ( $plugin_dir_user, $plugin_dir_system ) ) {
 			# Skip if we have this plugin already
 			next if (! $1) || $prog_types{$1};
 			# Register the plugin
-			$prog_types{$1} = "Programme::$1";
+			$prog_types{$1} = "gip::Programme::$1";
 			#logger "INFO: Loading $_\n";
 			require $_;
 			# Kludge: Create dummy instance (without a single instance, none of the bound options work)
@@ -377,13 +399,13 @@ logger "DEBUG: User Preset Options File: $optfile_preset\n" if defined $optfile_
 
 
 # Parse cmdline opts definitions from each Programme class/subclass
-Options->get_class_options( $_ ) for qw( Streamer Programme Pvr );
-Options->get_class_options( progclass($_) ) for progclass();
-Options->get_class_options( "Streamer::$_" ) for qw( mms rtmp rtsp iphone mms 3gp http );
+gip::Options->get_class_options( $_ ) for qw( gip::Streamer gip::Programme gip::PVR );
+gip::Options->get_class_options( progclass($_) ) for progclass();
+gip::Options->get_class_options( "gip::Streamer::$_" ) for qw( mms rtmp rtsp iphone mms 3gp http );
 
 
 # Parse the cmdline using the opt_format hash
-Options->usage( 0 ) if not $opt_cmdline->parse();
+gip::Options->usage( 0 ) if not $opt_cmdline->parse();
 
 
 # Parse options if we're not saving/adding/deleting options (system-wide options are overridden by personal options)
@@ -426,7 +448,7 @@ if ( $opt->{listplugins} ) {
 }
 
 # Show copyright notice
-logger Options->copyright_notice if not $opt->{nocopyright};
+logger gip::Options->copyright_notice if not $opt->{nocopyright};
 
 # Display prefs dirs if required
 main::logger "INFO: User prefs dir: $profile_dir\n" if $opt->{verbose};
@@ -434,15 +456,15 @@ main::logger "INFO: System options dir: $optfile_system\n" if $opt->{verbose};
 
 
 # Display Usage
-Options->usage( 2 ) if $opt_cmdline->{helpbasic};
-Options->usage( 0 ) if $opt_cmdline->{help};
-Options->usage( 1 ) if $opt_cmdline->{helplong};
+gip::Options->usage( 2 ) if $opt_cmdline->{helpbasic};
+gip::Options->usage( 0 ) if $opt_cmdline->{help};
+gip::Options->usage( 1 ) if $opt_cmdline->{helplong};
 
 # Dump all option keys and descriptions if required
-Options->usage( 1, 0, 1 ) if $opt_pre->{dumpoptions};
+gip::Options->usage( 1, 0, 1 ) if $opt_pre->{dumpoptions};
 
 # Generate man page
-Options->usage( 1, $opt_cmdline->{manpage} ) if $opt_cmdline->{manpage};
+gip::Options->usage( 1, $opt_cmdline->{manpage} ) if $opt_cmdline->{manpage};
 
 # Display GPLv3 stuff
 if ( $opt_cmdline->{warranty} || $opt_cmdline->{conditions}) {
@@ -549,7 +571,7 @@ unlink($cookiejar.'coremedia');
 
 # Create new PVR instance
 # $pvr->{searchname}->{<option>} = <value>;
-my $pvr = Pvr->new();
+my $pvr = gip::PVR->new();
 # Set some class-wide values
 $pvr->setvar('pvr_dir', "${profile_dir}/pvr/" );
 
@@ -848,7 +870,7 @@ sub download_pid_in_cache {
 	my $retcode;
 
 	# Prune future scheduled match if not specified
-	if ( (! $opt->{future}) && Programme::get_time_string( $this->{available} ) > time() ) {
+	if ( (! $opt->{future}) && gip::Programme::get_time_string( $this->{available} ) > time() ) {
 		# If the prog object exists with pid in history delete it from the prog list
 		logger "INFO: Ignoring Future Prog: '$this->{index}: $this->{name} - $this->{episode} - $this->{available}'\n" if $opt->{verbose};
 		# Don't attempt to download
@@ -986,7 +1008,7 @@ sub find_matches {
 		my @pruned;
 		for my $this (@match_list) {
 			# If the prog object exists with pid in history delete it from the prog list
-			my $available = Programme::get_time_string( $this->{available} );
+			my $available = gip::Programme::get_time_string( $this->{available} );
 			if ( $available && $available > $now ) {
 				logger "DEBUG: Ignoring Future Prog: '$this->{index}: $this->{name} - $this->{episode} - $this->{available}'\n" if $opt->{debug};
 			} else {
@@ -2942,44 +2964,3 @@ sub regex_numbers {
 	my $regex_tens = '(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)';
 	return '(\d+|'.$regex_units.'|'.$regex_ten_to_nineteen.'|'.$regex_tens.'((\s+|\-|)'.$regex_units.')?)';
 }
-
-
-
-############## OO ################
-
-############## Options default class ################
-
-########################################################
-
-################ History default class #################
-
-#################### Programme class ###################
-
-
-
-################### iPlayer Parent class #################
-
-
-################### TV class #################
-
-
-################### Radio class #################
-
-
-################### Streamer::rtmp class #################
-
-
-
-
-
-
-
-
-
-
-
-
-############# PVR Class ##############
-
-
-############## End OO ##############

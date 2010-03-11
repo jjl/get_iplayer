@@ -1,4 +1,4 @@
-package Programme::tv;
+package gip::Programme::tv;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -18,7 +18,7 @@ use Time::Local;
 use URI;
 
 # Inherit from Programme class
-use base 'Programme::bbciplayer';
+use base 'gip::Programme::bbciplayer';
 
 # Class vars
 sub index_min { return 1 }
@@ -172,13 +172,13 @@ sub clean_pid {
 
 
 
-# Usage: Programme::tv->get_links( \%prog, 'tv' );
+# Usage: gip::Programme::tv->get_links( \%prog, 'tv' );
 # Uses: %{ channels() }, \%prog
 sub get_links {
 	shift; # ignore obj ref
 	my $prog = shift;
 	my $prog_type = shift;
-	# Hack to get correct 'channels' method because this methods is being shared with Programme::radio
+	# Hack to get correct 'channels' method because this methods is being shared with gip::Programme::radio
 	my %channels = %{ main::progclass($prog_type)->channels_filtered( main::progclass($prog_type)->channels() ) };
 	my $channel_feed_url = 'http://feeds.bbc.co.uk/iplayer'; # /$channel/list
 	my $bbc_prog_page_prefix = 'http://www.bbc.co.uk/programmes'; # /$pid
@@ -296,7 +296,7 @@ sub get_links {
 			$title = $1 if $entry =~ m{<title\s*.*?>\s*(.*?)\s*</title>};
 
 			# determine name and episode from title
-			( $name, $episode ) = Programme::bbciplayer::split_title( $title );
+			( $name, $episode ) = gip::Programme::bbciplayer::split_title( $title );
 
 			# Get the title from the atom link refs only to determine the longer episode name
 			$episodetitle = $1 if $entry =~ m{<link\s+rel="self"\s+href="http.+?/episode/.+?"\s+type="application/atom\+xml"\s+title="(.+?)"};
@@ -394,7 +394,7 @@ sub get_links {
 				'guidance'	=> $guidance,
 				'available'	=> 'Unknown',
 				'duration'	=> 'Unknown',
-				'thumbnail'	=> "${thumbnail_prefix}/${pid}".Programme::bbciplayer->thumb_url_suffixes->{ $thumbsize },
+				'thumbnail'	=> "${thumbnail_prefix}/${pid}".gip::Programme::bbciplayer->thumb_url_suffixes->{ $thumbsize },
 				'channel'	=> $channel,
 				'categories'	=> join(',', sort @category),
 				'type'		=> $prog_type,
@@ -408,7 +408,7 @@ sub get_links {
 	# http://www.bbc.co.uk/cbbc/programmes/schedules/this_week.xml
 	# http://www.bbc.co.uk/cbbc/programmes/schedules/next_week.xml
 	if ( $opt->{refreshfuture} ) {
-		# Hack to get correct 'channels' method because this methods is being shared with Programme::radio
+		# Hack to get correct 'channels' method because this methods is being shared with gip::Programme::radio
 		my %channels = %{ main::progclass($prog_type)->channels_filtered( main::progclass($prog_type)->channels_schedule() ) };
 		# Only get schedules for real channels
 		@channel_list = keys %channels;
@@ -533,7 +533,7 @@ sub get_links {
 
 					# Don't create this prog instance if the availablity is in the past 
 					# this prevents programmes which never appear in iPlayer from being indexed
-					next if Programme::get_time_string( $available ) < $now;
+					next if gip::Programme::get_time_string( $available ) < $now;
 
 					# build data structure
 					$prog->{$pid} = main::progclass($prog_type)->new(
@@ -546,7 +546,7 @@ sub get_links {
 						'desc'		=> $desc,
 						'available'	=> $available,
 						'duration'	=> $duration,
-						'thumbnail'	=> "${thumbnail_prefix}/${pid}".Programme::bbciplayer->thumb_url_suffixes->{ $thumbsize },
+						'thumbnail'	=> "${thumbnail_prefix}/${pid}".gip::Programme::bbciplayer->thumb_url_suffixes->{ $thumbsize },
 						'channel'	=> $channel,
 						'type'		=> $prog_type,
 						'web'		=> "${bbc_prog_page_prefix}/${pid}.html",
@@ -641,7 +641,7 @@ sub download {
 		main::proxy_disable($ua) if $opt->{partialproxy};
 
 		# Instantiate new streamer based on streamdata
-		my $class = "Streamer::$prog->{streams}->{$version}->{$mode}->{streamer}";
+		my $class = "gip::Streamer::$prog->{streams}->{$version}->{$mode}->{streamer}";
 		my $stream = $class->new;
 
 		# Do recording

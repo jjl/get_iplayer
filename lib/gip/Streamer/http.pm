@@ -1,4 +1,4 @@
-package Streamer::http;
+package gip::Streamer::http;
 
 # Inherit from Streamer class
 use base 'Streamer';

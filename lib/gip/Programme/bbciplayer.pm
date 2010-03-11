@@ -1,4 +1,4 @@
-package Programme::bbciplayer;
+package gip::Programme::bbciplayer;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -18,7 +18,7 @@ use Time::Local;
 use URI;
 
 # Inherit from Programme class
-use base 'Programme';
+use base 'gip::Programme';
 
 
 # Return hash of version => verpid given a pid
@@ -341,7 +341,7 @@ sub get_metadata {
 
 		if ( $entry =~ m{<dcterms:valid>\s*start=.+?;\s*end=(.*?);} ) {
 			$expiry = $1;
-			$prog->{expiryrel} = Programme::get_time_string( $expiry, time() );
+			$prog->{expiryrel} = gip::Programme::get_time_string( $expiry, time() );
 		}
 		$available = $1 if $entry =~ m{<dcterms:valid>\s*start=(.+?);\s*end=.*?;};
 		$prog_type = $1 if $entry =~ m{medium=\"(\w+?)\"};
@@ -371,7 +371,7 @@ sub get_metadata {
 		}
 		# Use the default cache thumbnail unless --thumbsize=NNN is used where NNN is either the width or thumbnail index number
 		$thumbnail = $thumbnails{ $opt->{thumbsize} } if defined $opt->{thumbsize};
-		( $name, $episode ) = Programme::bbciplayer::split_title( $1 ) if $entry =~ m{<title\s+type="text">\s*(.+?)\s*<};
+		( $name, $episode ) = gip::Programme::bbciplayer::split_title( $1 ) if $entry =~ m{<title\s+type="text">\s*(.+?)\s*<};
 		$channel = $1 if $entry =~ m{<media:credit\s+role="Publishing Company"\s+scheme="urn:ebu">(.+?)<};
 
 		# Get the title from the atom link refs only to determine the episode and series number
@@ -506,7 +506,7 @@ sub get_metadata {
 			my $epoch;
 			$timestring = $1 if m{<timeline:start\s+rdf:datatype=".+?">(20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d([+-]\d\d:\d\d|Z))<};
 			next if ! $timestring;
-			$epoch = Programme::get_time_string( $timestring );
+			$epoch = gip::Programme::get_time_string( $timestring );
 			main::logger "DEBUG: $version: $timestring -> $epoch\n" if $opt->{debug};
 			if ( $epoch < $first ) {
 				$first = $epoch;
@@ -521,8 +521,8 @@ sub get_metadata {
 		if ( $first < 9999999999 && $last > 0 ) {
 			$prog->{firstbcast}->{$version} = $first_string;
 			$prog->{lastbcast}->{$version} = $last_string;
-			$prog->{firstbcastrel}->{$version} = Programme::get_time_string( $first_string, time() );
-			$prog->{lastbcastrel}->{$version} = Programme::get_time_string( $last_string, time() );
+			$prog->{firstbcastrel}->{$version} = gip::Programme::get_time_string( $first_string, time() );
+			$prog->{lastbcastrel}->{$version} = gip::Programme::get_time_string( $last_string, time() );
 		}
 	}
 
@@ -574,7 +574,7 @@ sub get_metadata {
 	my $thumbnail_prefix = 'http://www.bbc.co.uk/iplayer/images/episode';
 
 	# Thumbnail fallback if normal short pid (i.e. not URL)
-	$thumbnail = "${thumbnail_prefix}/$prog->{pid}".Programme::bbciplayer->thumb_url_suffixes->{ $thumbsize } if ! ( $thumbnail || $prog->{thumbnail} ) && $prog->{pid} !~ /^http/;
+	$thumbnail = "${thumbnail_prefix}/$prog->{pid}".gip::Programme::bbciplayer->thumb_url_suffixes->{ $thumbsize } if ! ( $thumbnail || $prog->{thumbnail} ) && $prog->{pid} !~ /^http/;
 	
 	# Fill in from cache if not got from metadata
 	$prog->{name} 		= $name || $prog->{name};
@@ -1277,7 +1277,7 @@ sub get_stream_data {
 	# Do iphone redirect check regardless of an xml entry for iphone (except for EMP/Live) - sometimes the iphone streams exist regardless
 	# Skip check if the modelist selected excludes iphone
 	if ( $prog->{pid} !~ /^http/i && $verpid !~ /^\?/ && $verpid !~ /^http:/ && grep /^iphone/, split ',', $prog->modelist() ) {
-		if ( my $streamurl = Streamer::iphone->get_url($ua, $prog->{pid}) ) {
+		if ( my $streamurl = gip::Streamer::iphone->get_url($ua, $prog->{pid}) ) {
 			my $mode = 'iphone1';
 			if ( $prog->{type} eq 'radio' ) {
 				$data->{$mode}->{bitrate} = 128;

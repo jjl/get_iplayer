@@ -1,4 +1,4 @@
-package Programme::liveradio;
+package gip::Programme::liveradio;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -18,7 +18,7 @@ use Time::Local;
 use URI;
 
 # Inherit from Programme class
-use base 'Programme::bbclive';
+use base 'gip::Programme::bbclive';
 
 # Class vars
 sub index_min { return 80100 }

@@ -1,4 +1,4 @@
-package Streamer;
+package gip::Streamer;
 
 # Class vars
 # Global options
@@ -7,7 +7,7 @@ my $opt;
 
 
 # Constructor
-# Usage: $streamer = Streamer->new();
+# Usage: $streamer = gip::Streamer->new();
 sub new {
 	my $type = shift;
 	my %params = @_;
@@ -16,7 +16,7 @@ sub new {
 		$self->{$_} = $params{$_};
 	}
 	# Ensure the subclass $opt var is pointing to the Superclass global optref
-	$opt = $Streamer::optref;
+	$opt = $gip::Streamer::optref;
 	bless $self, $type;
 }
 
@@ -24,7 +24,7 @@ sub new {
 # Use to bind a new options ref to the class global $optref var
 sub add_opt_object {
 	my $self = shift;
-	$Streamer::optref = shift;
+	$gip::Streamer::optref = shift;
 }
 
 

@@ -1,4 +1,4 @@
-package Programme;
+package gip::Programme;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -92,7 +92,7 @@ sub expiry {
 
 
 # Constructor
-# Usage: $prog{$pid} = Programme->new( 'pid' => $pid, 'name' => $name, <and so on> );
+# Usage: $prog{$pid} = gip::Programme->new( 'pid' => $pid, 'name' => $name, <and so on> );
 sub new {
 	my $type = shift;
 	my %params = @_;
@@ -101,9 +101,9 @@ sub new {
 		$self->{$_} = $params{$_};
 	}
 	## Ensure that all instances reference the same class global $optref var
-	# $self->{optref} = $Programme::optref;
+	# $self->{optref} = $gip::Programme::optref;
 	# Ensure the subclass $opt var is pointing to the Superclass global optref
-	$opt = $Programme::optref;
+	$opt = $gip::Programme::optref;
 	bless $self, $type;
 }
 
@@ -111,7 +111,7 @@ sub new {
 # Use to bind a new options ref to the class global $optref var
 sub add_opt_object {
 	my $self = shift;
-	$Programme::optref = shift;
+	$gip::Programme::optref = shift;
 }
 
 
@@ -121,7 +121,7 @@ sub opt {
 	my $optname = shift;
 	return $opt->{$optname};
 
-	#return $Programme::optref->{$optname};	
+	#return $gip::Programme::optref->{$optname};	
 	#my $opt = $self->{optref};
 	#return $self->{optref}->{$optname};
 }
@@ -808,7 +808,7 @@ sub generate_filenames {
 	$prog->{fileprefix} = $opt->{fileprefix} || $format;
 
 	# get $name, $episode from title
-	my ( $name, $episode ) = Programme::bbciplayer::split_title( $prog->{title} ) if $prog->{title};
+	my ( $name, $episode ) = gip::Programme::bbciplayer::split_title( $prog->{title} ) if $prog->{title};
 	$prog->{name} = $name if $name && ! $prog->{name};
 	$prog->{episode} = $episode if $episode && ! $prog->{episode};
 

@@ -1,4 +1,4 @@
-package Pvr;
+package gip::PVR;
 
 use Env qw[@PATH];
 use Fcntl;
@@ -39,7 +39,7 @@ sub opt_format {
 
 
 # Constructor
-# Usage: $pvr = Pvr->new();
+# Usage: $pvr = gip::PVR->new();
 sub new {
 	my $type = shift;
 	my %params = @_;
@@ -48,9 +48,9 @@ sub new {
 		$self->{$_} = $params{$_};
 	}
 	## Ensure the subclass $opt var is pointing to the Superclass global optref
-	$opt = $Pvr::optref;
-	$opt_file = $Pvr::opt_fileref;
-	$opt_cmdline = $Pvr::opt_cmdlineref;
+	$opt = $gip::PVR::optref;
+	$opt_file = $gip::PVR::opt_fileref;
+	$opt_cmdline = $gip::PVR::opt_cmdlineref;
 	bless $self, $type;
 }
 
@@ -58,17 +58,17 @@ sub new {
 # Use to bind a new options ref to the class global $opt_ref var
 sub add_opt_object {
 	my $self = shift;
-	$Pvr::optref = shift;
+	$gip::PVR::optref = shift;
 }
 # Use to bind a new options ref to the class global $opt_fileref var
 sub add_opt_file_object {
 	my $self = shift;
-	$Pvr::opt_fileref = shift;
+	$gip::PVR::opt_fileref = shift;
 }
 # Use to bind a new options ref to the class global $opt_cmdlineref var
 sub add_opt_cmdline_object {
 	my $self = shift;
-	$Pvr::opt_cmdlineref = shift;
+	$gip::PVR::opt_cmdlineref = shift;
 }
 
 
