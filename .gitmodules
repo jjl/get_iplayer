@@ -4,3 +4,6 @@
 [submodule "deps/mousex-getopt"]
 	path = deps/mousex-getopt
 	url = git://github.com/gfx/Perl-MouseX-Getopt.git
+[submodule "deps/mousex-nativetraits"]
+	path = deps/mousex-nativetraits
+	url = git://github.com/gfx/Perl-MouseX-NativeTraits.git
