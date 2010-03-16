@@ -750,9 +750,9 @@ Options->add_opt_format_object($opt_format);
 # Set Programme/Pvr/Streamer class global var refs to the Options instance
 History->add_opt_object($opt);
 Programme->add_opt_object($opt);
-Pvr->add_opt_object($opt);
-Pvr->add_opt_file_object($opt_file);
-Pvr->add_opt_cmdline_object($opt_cmdline);
+gip::Singletons->pvr->opt($opt);
+gip::Singletons->pvr->opt_file($opt_file);
+gip::Singletons->pvr->opt_cmdline($opt_cmdline);
 Streamer->add_opt_object($opt);
 
 # Kludge: Create dummy Streamer, History and Programme instances (without a single instance, none of the bound options work)
@@ -11052,6 +11052,7 @@ sub get {
     return 0;
 }
 
+BEGIN {
 ############# PVR Class ##############
 package Pvr;
 
@@ -11059,12 +11060,12 @@ use File::Path;
 use Mouse;
 
 #Instance methods. We are a singleton so need no class vars
-has optref => ( is => 'rw' );
-has opt_fileref => ( is => 'rw' );
-has opt_cmdlineref => ( is => 'rw' );
-has opt => ( is => 'rw' );
-has opt_file => ( is => 'rw' );
-has opt_cmdline => ( is => 'rw' );
+has optref => ( is => 'rw', isa => 'Ref' );
+has opt_fileref => ( is => 'rw', isa => 'Ref' );
+has opt_cmdlineref => ( is => 'rw', isa => 'Ref' );
+has opt => ( is => 'rw', lazy_build => 1, isa => 'Ref');
+has opt_file => ( is => 'rw' , lazy_build => 1, isa => 'Ref');
+has opt_cmdline => ( is => 'rw', lazy_build => 1, isa => 'Ref');
 has vars => ( isa => 'HashRef', is => 'rw' );
 has searches => (
     isa => 'HashRef', is => 'rw', traits => ['Hash'], default => sub{ +{} },
@@ -11073,6 +11074,18 @@ has searches => (
 	_clear_searches => 'clear',
     }
 );
+
+sub _build_opt {
+    shift->optref
+}
+
+sub _build_opt_file {
+    shift->opt_fileref
+}
+
+sub _build_opt_cmdline {
+    shift->opt_cmdlineref
+}
 
 # Class cmdline Options
 sub opt_format {
@@ -11141,12 +11154,12 @@ sub opt_format {
     };
 }
 
-sub BUILD {
-    my $self = shift;
-    $self->opt($self->optref);
-    $self->opt_file($self->opt_fileref);
-    $self->opt_cmdline($self->opt_cmdlineref);
-}
+# sub BUILD {
+#     my $self = shift;
+#     $self->opt($self->optref);
+#     $self->opt_file($self->opt_fileref);
+#     $self->opt_cmdline($self->opt_cmdlineref);
+# }
 
 # Use to bind a new options ref to the class global $optref var
 sub setvar {
@@ -11535,7 +11548,7 @@ sub enable {
     $self->save( $name, @options );
     return 0;
 }
-
+}
 package gip::Singletons;
 
 #This enforces singletons outside of the class
@@ -11552,5 +11565,4 @@ sub pvr {
     $pvr
 }
     
-
 ############## End OO ##############
