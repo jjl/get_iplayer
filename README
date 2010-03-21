@@ -7,3 +7,19 @@ What the BBC do not cater for are people who use alternative operating systems o
 The BBC have a well documented platform neutrality policy which they seem to be reluctant to keep themselves to and after repeated digs at open source, I thought we'd show them what open source can do.
 
 So get hacking and hold the BBC accountable, because not all licence payers use windows!
+
+PLANS
+
+The code is a bit of a mess at the minute. The first aim is to clean it up and port it to doing things the 'Modern Perl' way.
+
+1. Refactor out the shared variables.
+2. Port all of the classes to Mouse.
+3. Renamespace classes under 'gip::' prefix.
+4. Split it out into seperate files for each class.
+5. Cut back superfluous command line options and more crazy features
+6. Add a new plugin system
+7. Refactor the code to use plugins for some of the 'choices'
+8. Rebundle with App::FatPacker so it's all one script again.
+9. Write tests
+10. Fix bugs
+11. GOTO 8
