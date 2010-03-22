@@ -2,7 +2,32 @@ How to install get_iplayer
 
 I assume a unix-like system. It's doable with strawberry perl too, but you'll probably need help from someone who uses it to get it working.
 
-If you don't want to install it and you just need to run it, here is all you have to do:
+There are two get_iplayers here and for each, instructions to install and run it, thus four sets of instructions.
+
+If you just want to use it, use the simple script. If you want to develop on it, use the new version
+
+INSTALLING THE SIMPLE SCRIPT
+
+1. Check out the latest version from git:
+
+git clone git://github.com/jjl/get_iplayer.git
+
+2. Copy it to somewhere sensible and chmod it
+
+sudo cp get_iplayer/get_iplayer /usr/local/bin
+sudo chmod 755 /usr/local/bin/get_iplayer
+
+RUNNING THE SIMPLE SCRIPT FROM WHERE IT IS
+
+1. Check out the latest version from git:
+
+git clone git://github.com/jjl/get_iplayer.git
+
+2. Run it.
+
+./get_iplayer.pl <args>
+
+RUNNING THE NEW VERSION
 
 1. Check out the latest version from git:
 
@@ -12,13 +37,13 @@ git clone git://github.com/jjl/get_iplayer.git
 
 git submodule update
 
-3. Run the run.pl script
+3. Run the main.pl script
 
-perl run.pl <usual get_iplayer args>
+perl main.pl <usual get_iplayer args>
 
+INSTALLING THE NEW VERSION
 
-
-If you do want to install it, you'll need to do these instead:
+If you want to do this, put down the crack pipe, it's not really ready.
 
 1. Check out the latest version from git:
 
@@ -34,6 +59,3 @@ wget -O - http://cpanmin.us | perl - Mouse MouseX::NativeTraits
 
 cp get_iplayer /usr/local/bin/
 chmod 755 /usr/local/bin/get_iplayer
-
-
-Please note these directions are temporary, when the refactoring is done, it'll be much, much easier

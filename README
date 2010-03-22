@@ -6,20 +6,14 @@ What the BBC do not cater for are people who use alternative operating systems o
 
 The BBC have a well documented platform neutrality policy which they seem to be reluctant to keep themselves to and after repeated digs at open source, I thought we'd show them what open source can do.
 
-So get hacking and hold the BBC accountable, because not all licence payers use windows!
+So get hacking!
 
-PLANS
+PROMETHEUS
 
-The code is a bit of a mess at the minute. The first aim is to clean it up and port it to doing things the 'Modern Perl' way.
+The original get_iplayer code is a mess. I initially began to gradually refactor it but encountered severe problems, largely owing to lexical scoping and variables being shared through scopes.
 
-1. Refactor out the shared variables.
-2. Port all of the classes to Mouse.
-3. Renamespace classes under 'gip::' prefix.
-4. Split it out into seperate files for each class.
-5. Cut back superfluous command line options and more crazy features
-6. Add a new plugin system
-7. Refactor the code to use plugins for some of the 'choices'
-8. Rebundle with App::FatPacker so it's all one script again.
-9. Write tests
-10. Fix bugs
-11. GOTO 8
+I gave up and started rewriting it instead. The original script is still there as 'get_iplayer' and i reverted it to the last version that Phil released.
+
+Prometheus is the next generation of get_iplayer. It won't steal fire from the Gods, but it may enable you to use get_iplayer on a non-bbc-supported platform.
+
+Also: http://www.youtube.com/watch?v=-Ryd_p20XEU
