@@ -5614,7 +5614,7 @@ sub get_stream_data_cdn {
 		# Common attributes
 		# swfurl = Default iPlayer swf version
 		my $conn = {
-			swfurl		=> "http://www.bbc.co.uk/emp/10player.swf?revision=15501_15796",
+			swfurl		=> "http://www.bbc.co.uk/emp/10player.swf?revision=18269_19216",
 			ext		=> $ext,
 			streamer	=> $streamer,
 			bitrate		=> $mattribs->{bitrate},
@@ -5626,6 +5626,8 @@ sub get_stream_data_cdn {
 
 		# Akamai CDN
 		if ( $cattribs->{kind} eq 'akamai' ) {
+			# disable akamai for now for video - broken...
+			next if $ext eq 'mp4';
 			# Set the live flag if this is not an ondemand stream
 			$conn->{live} = 1 if defined $cattribs->{application} && $cattribs->{application} =~ /^live/;
 			# Default appication is 'ondemand'
@@ -5644,25 +5646,30 @@ sub get_stream_data_cdn {
 			}
 
 			if ( $cattribs->{authString} ) {
-				### ??? live and Live TV, Live EMP Video or Non-public EMP video:
-				$conn->{playpath} = "$cattribs->{identifier}?auth=$cattribs->{authString}&aifp=v001";
+				# rewrite authstring
+				$cattribs->{authString} =~ s|^auth=||gi;
+				decode_entities($cattribs->{authString});
+				$conn->{playpath} = "$cattribs->{identifier}?auth=$cattribs->{authString}";
 			} else {
 				$conn->{playpath} = $cattribs->{identifier};
 			}
+			# Remove offending mp3/mp4: at the start of the identifier (don't remove in stream url)
+			$cattribs->{identifier} =~ s/^mp[34]://;
+			# strip out alternative playlist items from slist in authString (replace with identifier)
+			$cattribs->{authString} =~ s/slist=(.+)$/slist=/g;
+			$cattribs->{authString} .= $cattribs->{identifier};
 			if ( $cattribs->{authString} ) {
 				$conn->{streamurl} = "rtmp://$cattribs->{server}:1935/$cattribs->{application}?_fcs_vhost=$cattribs->{server}&auth=$cattribs->{authString}&aifp=v001&slist=$cattribs->{identifier}";
 			} else {
 				$conn->{streamurl} = "rtmp://$cattribs->{server}:1935/$cattribs->{application}?_fcs_vhost=$cattribs->{server}&undefined";
 			}
-			# Remove offending mp3/mp4: at the start of the identifier (don't remove in stream url)
-			$cattribs->{identifier} =~ s/^mp[34]://;
 			if ( $cattribs->{authString} ) {
-				$conn->{application} = "$cattribs->{application}?_fcs_vhost=$cattribs->{server}&auth=$cattribs->{authString}&aifp=v001&slist=$cattribs->{identifier}";
+				$conn->{application} = "$cattribs->{application}?_fcs_vhost=$cattribs->{server}&auth=$cattribs->{authString}";
 			} else {
 				$conn->{application} = "$cattribs->{application}?_fcs_vhost=$cattribs->{server}&undefined";
 			}
 			# Port 1935? for live?
-			$conn->{tcurl} = "rtmp://$cattribs->{server}:80/$conn->{application}";
+			$conn->{tcurl} = "rtmp://$cattribs->{server}:1935/$conn->{application}";
 
 		# Limelight CDN
 		} elsif ( $cattribs->{kind} eq 'limelight' ) {
@@ -5862,6 +5869,9 @@ sub get_stream_data {
 			} elsif ( $mattribs->{bitrate} > 400 && $mattribs->{width} >= 500 ) {
 				get_stream_data_cdn( $data, $mattribs, 'flashstd', 'rtmp', 'mp4' );
 
+			# flashlow modes
+			} elsif ( $mattribs->{bitrate} > 300 && $mattribs->{width} >= 380 ) {
+				get_stream_data_cdn( $data, $mattribs, 'flashlow', 'rtmp', 'mp4' );
 			}
 			
 		# flashnormal modes (also live and EMP modes)
@@ -5974,6 +5984,48 @@ sub get_stream_data {
 		} else {
 			new_stream_report($mattribs, undef) if $opt->{verbose};
 		}	
+	}
+
+	# if flashaaclow exists then rtspaaclow one usually does also.
+	if ( $data->{'flashaaclow1'} && $prog->{type} eq 'radio' ) {
+		my $mode = 'rtspaaclow1';
+		$data->{$mode}->{bitrate} = $data->{'flashaaclow1'}->{bitrate};
+		$data->{$mode}->{encoding} = $data->{'flashaaclow1'}->{encoding};
+		$data->{$mode}->{type} = "(iplayer_stream_aac_rtsp_lo) rtsp aac ".( $data->{$mode}->{bitrate} || '48' )."kbps stream";
+		$data->{$mode}->{identifier} =  $data->{'flashaaclow1'}->{identifier};
+		$data->{$mode}->{identifier} =~ s/^mp[34]://;
+		$data->{$mode}->{streamurl} = "rtsp://3gp-acl.bbc.net.uk:554/".$data->{$mode}->{identifier}.".mp4";
+		$data->{$mode}->{streamer} = 'rtsp';
+		$data->{$mode}->{ext} = 'aac';
+		get_stream_set_type( $data->{$mode} ) if ! $data->{$mode}->{type};
+	}
+
+	# if flashaacstd exists then rtspaacstd one usually does also.
+	if ( $data->{'flashaacstd1'} && $prog->{type} eq 'radio' ) {
+		my $mode = 'rtspaacstd1';
+		$data->{$mode}->{bitrate} = $data->{'flashaacstd1'}->{bitrate};
+		$data->{$mode}->{encoding} = $data->{'flashaacstd1'}->{encoding};
+		$data->{$mode}->{type} = "(iplayer_stream_aac_rtsp_med) rtsp aac ".( $data->{$mode}->{bitrate} || '128' )."kbps stream";
+		$data->{$mode}->{identifier} =  $data->{'flashaacstd1'}->{identifier};
+		$data->{$mode}->{identifier} =~ s/^mp[34]://;
+		$data->{$mode}->{streamurl} = "rtsp://3gp-acl.bbc.net.uk:554/".$data->{$mode}->{identifier}.".mp4";
+		$data->{$mode}->{streamer} = 'rtsp';
+		$data->{$mode}->{ext} = 'aac';
+		get_stream_set_type( $data->{$mode} ) if ! $data->{$mode}->{type};
+	}
+
+	# if flashaudio exists then rtspaudio one usually does also.
+	if ( $data->{'flashaudio1'} && $prog->{type} eq 'radio' ) {
+		my $mode = 'rtspaudio1';
+		$data->{$mode}->{bitrate} = $data->{'flashaudio1'}->{bitrate};
+		$data->{$mode}->{encoding} = $data->{'flashaudio1'}->{encoding};
+		$data->{$mode}->{type} = "(iplayer_stream_mp3_rtsp_med) rtsp mp3 ".( $data->{$mode}->{bitrate} || '128' )."kbps stream";
+		$data->{$mode}->{identifier} =  $data->{'flashaudio1'}->{identifier};
+		$data->{$mode}->{identifier} =~ s|^mp[34]:secure/(\w+?)/(.+$)|$1/secure_auth/$2|;
+		$data->{$mode}->{streamurl} = "rtsp://3gp-acl.bbc.net.uk:554/".$data->{$mode}->{identifier}.".mp3";
+		$data->{$mode}->{streamer} = 'rtsp';
+		$data->{$mode}->{ext} = 'mp3';
+		get_stream_set_type( $data->{$mode} ) if ! $data->{$mode}->{type};
 	}
 
 	# Do iphone redirect check regardless of an xml entry for iphone (except for EMP/Live) - sometimes the iphone streams exist regardless
@@ -7001,9 +7053,9 @@ sub modelist {
 	if ( ! $mlist ) {
 		if ( ! main::exists_in_path('flvstreamer') ) {
 			main::logger "WARNING: Not using flash modes since flvstreamer is not found\n" if $opt->{verbose};
-			$mlist = 'iphone,realaudio,wma';
+			$mlist = 'iphone,rtspaudio,realaudio,wma';
 		} else {
-			$mlist = 'iphone,flashaachigh,flashaacstd,flashaudio,realaudio,flashaaclow,wma';
+			$mlist = 'iphone,flashaachigh,flashaacstd,flashaudio,rtspaudio,realaudio,flashaaclow,wma';
 		}
 	}
 	# Deal with BBC Radio fallback modes and expansions
@@ -7944,6 +7996,7 @@ sub get {
 	my $playpath 	= $streamdata{playpath};
 	my $port 	= $streamdata{port} || $opt->{rtmpport} || 1935;
 	my $protocol	= $streamdata{protocol} || 0;
+	my $pageurl	= $prog->{player};
 	my $mode	= $prog->{mode};
 	push @cmdopts, ( split /\s+/, $streamdata{extraopts} ) if $streamdata{extraopts};
 
@@ -8015,6 +8068,7 @@ sub get {
 			'--swfUrl', $swfurl,
 			'--tcUrl', $tcurl,
 			'--app', $application,
+			'--pageUrl', $pageurl,
 			@cmdopts,
 		);
 	# Using just streamurl (i.e. no playpath defined)
